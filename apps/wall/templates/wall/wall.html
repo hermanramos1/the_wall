@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Wall</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<body>
+    <!-- submit posts  -->
+    <h1>Welcome to your wall, {{ user_first_name }}</h1>
+    <form method="post" action="/create_post" class="was-validated">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="validationTextarea">Post:</label>
+            <textarea name="post_content" class="form-control is-invalid" id="validationTextarea"
+                placeholder="The post must be at least 50 characters" required></textarea>
+
+            <input type="submit" value="Submit">
+        </div>
+    </form>
+    <br>
+
+    {% for post in all_posts %}
+
+
+    <!-- display posts -->
+    <h4>
+        {{ post.post_content }} - {{ post.user.first_name }} - {{ post.created_at }}
+    </h4>
+    {% if current_user_id == post.user.id %}
+    <form action="/delete_post/{{ post.id }}" method="POST" style="display:inline-block">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Delete</button>
+    </form>
+    {% endif %}
+    <br>
+
+    <!-- display comments  -->
+    {% for comment in post.comments.all %}
+    <div>
+        <p style="display:inline-block;">{{comment.comment_content}} - {{comment.user.first_name}} -
+            {{comment.created_at}} </p>
+
+        {% if current_user_id == comment.user.id %}
+        <form action="/delete_comment/{{ comment.id }}" method="POST" style="display:inline-block">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <!-- make comments  -->
+    <form style="width: 400px;" method="post" action="/create_comment/{{ post.id }}" class="was-validated">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="validationTextarea">Comment:</label>
+            <textarea name="comment_content" class="form-control is-invalid" id="validationTextarea"
+                placeholder="The comment must be at least 10 characters" required></textarea>
+            <input type="submit" value="Submit">
+        </div>
+    </form>
+    </p>
+    {% endfor %}
+    <br>
+    <a href="/logout">Log Out</a>
+</body>
+
+</html>
